@@ -3,9 +3,8 @@ import axios from 'axios';
 
 function App() {
   const [publicKey, setPublicKey] = useState('');
-  const [secretKey, setSecretKey] = useState('');
   const onPKChange = (e) => setPublicKey(e.target.value);
-  const onSKChange = (e)=> setSecretKey(e.target.value);
+  const RRN = '07311991';
 
   const transactionDetails = {
     totalAmount: {
@@ -82,11 +81,11 @@ function App() {
       }
     ],
     redirectUrl: {
-      success: "http://localhost:3000/success",
+      success: `http://localhost:3000/success_pg_checkout/${RRN}`,
       failure: "http://localhost:3000/failure",
       cancel: "http://localhost:3000/cancel"
     },
-    requestReferenceNumber: "1551191039",
+    requestReferenceNumber: RRN,
     metadata: {}
   };
 
@@ -100,7 +99,9 @@ function App() {
       },
       data : JSON.stringify(transactionDetails)
     };
+
     const result = await axios(options);
+    console.log(result.data);
     if(result.data.redirectUrl)  window.location = result.data.redirectUrl;
   };
 
@@ -108,8 +109,6 @@ function App() {
       <div>
         <h1>Paymaya SDK Playground</h1>
         <input type="text" placeholder="Public Key" onChange={onPKChange} value={publicKey}></input>
-        <br/>
-        <input type="text" placeholder="Secret Key" onChange={onSKChange} value={secretKey}></input>
         <br/>
         <button onClick={onPGCheckOut}>PG_Checkout</button>
       </div>
