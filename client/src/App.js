@@ -1,5 +1,5 @@
 import React,{useState} from 'react';
-import axios from 'axios';
+import {paymentGatewayCheckOut} from './paymaya_sdk/payment-gateway-checkout';
 
 function App() {
   const [publicKey, setPublicKey] = useState('');
@@ -81,7 +81,7 @@ function App() {
       }
     ],
     redirectUrl: {
-      success: `http://localhost:3000/success_pg_checkout/${RRN}`,
+      success: "http://localhost:3000/success",
       failure: "http://localhost:3000/failure",
       cancel: "http://localhost:3000/cancel"
     },
@@ -89,20 +89,18 @@ function App() {
     metadata: {}
   };
 
-  const onPGCheckOut = async(e) => {
-    const options = {
-      method: 'post',
-      url: 'https://pg-sandbox.paymaya.com/checkout/v1/checkouts',
-      headers: {
-        'Content-type' : 'application/json',
-        'Authorization' : `Basic ${btoa(`${publicKey}:`)}`
-      },
-      data : JSON.stringify(transactionDetails)
+  const onPGCheckOut = async (e) => {
+    const API_code = 'CREATE_CHECKOUT';
+    const reqBody = {
+      ...transactionDetails,
+      redirectUrl: {
+        success: `http://localhost:3000/success_pg_checkout/${RRN}`,
+        failure: "http://localhost:3000/failure",
+        cancel: "http://localhost:3000/cancel"
+      }
     };
-
-    const result = await axios(options);
-    console.log(result.data);
-    if(result.data.redirectUrl)  window.location = result.data.redirectUrl;
+    const {response,error} = await paymentGatewayCheckOut(API_code, {public:publicKey}, reqBody);
+    if(!error) window.location = response.redirectUrl;
   };
 
   return (
