@@ -8,7 +8,7 @@ const createPaymentToken = async (publicKey, cardDetails) =>{
             'Content-Type': 'application/json',
             'Authorization' : `Basic ${btoa(`${publicKey}:`)}`
         },
-        data: JSON.stringify(cardDetails)
+        data: JSON.stringify({card: cardDetails})
     }
     try {
         const result = await axios(options);
@@ -29,7 +29,7 @@ export const createOneTimePayment = async (publicKey, secretKey, transactionDeta
             'Content-Type': 'application/json',
             'Authorization' : `Basic ${btoa(`${secretKey}:`)}`
         },
-        data: JSON.stringify({...transactionDetails, paymentTokenId: cardDetails})
+        data: JSON.stringify({...transactionDetails, paymentTokenId: cardToken.paymentTokenId})
     }
     try {
         const result = await axios(options);

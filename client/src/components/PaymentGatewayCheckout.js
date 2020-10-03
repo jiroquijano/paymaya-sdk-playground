@@ -1,9 +1,9 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {paymentGatewayCheckOut} from '../paymaya_sdk/payment-gateway-checkout';
 import {setupWebhook} from '../paymaya_sdk/paymaya-webhook';
 
 const PaymentGatewayCheckout = ({publicKey, secretKey}) => {
-    const RRN = '12062014';
+    const [RRN, setRRN] = useState('12062014');
     const transactionDetails = {
       totalAmount: {
         value: 100,
@@ -93,22 +93,34 @@ const PaymentGatewayCheckout = ({publicKey, secretKey}) => {
           ...transactionDetails,
           redirectUrl: {
             success: `http://localhost:3000/success_pg_checkout/${RRN}`,
-            failure: `http://localhost:3000/failure_pg_checkout/${RRN}`,
-            cancel: `http://localhost:3000/cancel_pg_checkout/${RRN}`
+            failure: `http://localhost:3000/failure/${RRN}`,
+            cancel: `http://localhost:3000/cancel/${RRN}`
           }
         };
         const {response,error} = await paymentGatewayCheckOut(API_code, {public:publicKey}, reqBody);
         if(!error) window.location = response.redirectUrl;
       };
+
+    const onCheckViaRRN = async()=>{
+        const {response, error} = await paymentGatewayCheckOut('GET_VIA_RRN',{secret:secretKey},{RRN});
+        if (!error) console.log(response);
+    };
+
+    const onRRNChange = (e) => setRRN(e.target.value);
     
     const onWebhookSetupClick = async(e) => {
-    setupWebhook(secretKey, 'CHECKOUT_SUCCESS', 'http://localhost:80/api/success');
+      await setupWebhook(secretKey, 'CHECKOUT_SUCCESS', 'http://localhost:80/api/success');
     }
 
     return (
         <>
             <h3>Payment Gateway Checkout</h3>
+            <label>RRN:</label>
+            <input type='text' onChange={onRRNChange} placeholder='RRN' value={RRN}/>
+            <br/>
             <button onClick={onPGCheckOut}>PG_Checkout</button>
+            <button onClick={onCheckViaRRN}>RRN Check</button>
+            <br/>
             <button onClick={onWebhookSetupClick}>Webhook Setup</button>
         </>
     )
