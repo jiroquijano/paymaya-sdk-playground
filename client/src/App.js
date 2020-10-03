@@ -4,7 +4,7 @@ import {paymentGatewayCheckOut} from './paymaya_sdk/payment-gateway-checkout';
 function App() {
   const [publicKey, setPublicKey] = useState('');
   const onPKChange = (e) => setPublicKey(e.target.value);
-  const RRN = '07311991';
+  const RRN = '12062014';
 
   const transactionDetails = {
     totalAmount: {

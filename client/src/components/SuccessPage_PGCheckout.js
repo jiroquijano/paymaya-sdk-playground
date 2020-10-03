@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import axios from 'axios';
+import {paymentGatewayCheckOut} from '../paymaya_sdk/payment-gateway-checkout';
 
 const SuccessPage_PGCheckout = () => {
     const [SK, setSK] = useState('');
@@ -8,61 +8,27 @@ const SuccessPage_PGCheckout = () => {
     const rrnIndex = window.location.pathname.lastIndexOf('/');
     const RRN = window.location.pathname.slice(rrnIndex+1);
 
-    const onCheckTransaction = async()=>{
-        const options = {
-            method: 'get',
-            url: `https://pg-sandbox.paymaya.com/payments/v1/payment-rrns/${RRN}`,
-            headers: {
-              'Content-type' : 'application/json',
-              'Authorization' : `Basic ${btoa(`${SK}:`)}`
-            }
-          };
-
-          const result = await axios(options);
-          console.log(result.data)
+    const onCheckViaRRN = async()=>{
+        const {response, error} = await paymentGatewayCheckOut('GET_VIA_RRN',{secret:SK},{RRN});
+        if (!error) console.log(response);
     };
 
     const onRefund = async() => {
-        const options = {
-            method: 'post',
-            url: `https://pg-sandbox.paymaya.com/payments/v1/payments/${refund}/refunds`,
-            headers: {
-              'Content-type' : 'application/json',
-              'Authorization' : `Basic ${btoa(`${SK}:`)}`
+        const body = {
+            totalAmount: {
+                amount: 100,
+                currency: "PHP"
             },
-            data: JSON.stringify({
-                totalAmount: {
-                    amount: 100,
-                    currency: "PHP"
-                },
-                reason:"wrong color"
-            })
-          };
-          try{
-              const result = await axios(options);
-              console.log('==refund==');
-              console.log(result.data)
-          }catch(error){
-              console.log(error.response.data);
-          }
+            reason:"wrong color"
+        };
+        const {response} = paymentGatewayCheckOut('REFUND_PAYMENT', {secret:SK},{paymentId:refund,body});
+        console.log(response);
     }
 
     const onGetRefundList = async() => {
-        const options = {
-            method: 'get',
-            url: `https://pg-sandbox.paymaya.com/payments/v1/payments/${refund}/voids`,
-            headers: {
-              'Content-type' : 'application/json',
-              'Authorization' : `Basic ${btoa(`${SK}:`)}`
-            }
-          };
-          try{
-            const result = await axios(options);
-            console.log('==refund list==');
-            console.log(result.data)
-          }catch(error){
-              console.log(error.response.data);
-          }
+        const {response} = paymentGatewayCheckOut('GET_REFUNDS_LIST',{secret:SK},{paymentId:refund})
+        console.log("==refunds list==");
+        console.log(response);
     }
 
     const onPaymentIDChange = (e) =>{
@@ -74,7 +40,7 @@ const SuccessPage_PGCheckout = () => {
             <h1>success</h1>
             <input type="text" value={SK} placeholder="Secret Key" onChange={onSKChange}/>
             <br/>
-            <button onClick={onCheckTransaction}>{`check transactions for RRN: ${RRN}`}</button>
+            <button onClick={onCheckViaRRN}>{`check transactions for RRN: ${RRN}`}</button>
             <br/>
             <input type='text' placeholder='payment to refund' value={refund} onChange={onPaymentIDChange}/>
             <button onClick={onRefund}>refund</button>
