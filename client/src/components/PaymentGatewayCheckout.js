@@ -107,6 +107,7 @@ const PaymentGatewayCheckout = ({publicKey, secretKey}) => {
 
     return (
         <>
+            <h3>Payment Gateway Checkout</h3>
             <button onClick={onPGCheckOut}>PG_Checkout</button>
             <button onClick={onWebhookSetupClick}>Webhook Setup</button>
         </>

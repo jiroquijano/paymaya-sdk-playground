@@ -1,5 +1,6 @@
 import React,{useState} from 'react';
 import PaymentGatewayCheckout from './components/PaymentGatewayCheckout';
+import PaymentVault from './components/PaymentVault';
 
 function App() {
   const [publicKey, setPublicKey] = useState('');
@@ -15,6 +16,7 @@ function App() {
         <input type="text" placeholder="Secret Key" onChange={onSKChange} value={secretKey}></input>
         <div>
           <PaymentGatewayCheckout publicKey={publicKey} secretKey={secretKey}/>
+          <PaymentVault publicKey={publicKey} secretKey={secretKey}/>
         </div>
       </div>
   );
