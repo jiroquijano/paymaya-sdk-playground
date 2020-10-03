@@ -1,8 +1,11 @@
 import React,{useState} from 'react';
 import {paymentGatewayCheckOut} from './paymaya_sdk/payment-gateway-checkout';
+import {setupWebhook} from './paymaya_sdk/paymaya-webhook';
 
 function App() {
   const [publicKey, setPublicKey] = useState('');
+  const [secretKey, setSecretKey] = useState('');
+  const onSKChange = (e) => setSecretKey(e.target.value);
   const onPKChange = (e) => setPublicKey(e.target.value);
   const RRN = '12062014';
 
@@ -95,20 +98,27 @@ function App() {
       ...transactionDetails,
       redirectUrl: {
         success: `http://localhost:3000/success_pg_checkout/${RRN}`,
-        failure: "http://localhost:3000/failure",
-        cancel: "http://localhost:3000/cancel"
+        failure: `http://localhost:3000/failure_pg_checkout/${RRN}`,
+        cancel: `http://localhost:3000/cancel_pg_checkout/${RRN}`
       }
     };
     const {response,error} = await paymentGatewayCheckOut(API_code, {public:publicKey}, reqBody);
     if(!error) window.location = response.redirectUrl;
   };
 
+  const onWebhookSetupClick = async(e) => {
+    setupWebhook(secretKey, 'CHECKOUT_SUCCESS', 'http://localhost:80/api/success');
+  }
+
   return (
       <div>
         <h1>Paymaya SDK Playground</h1>
         <input type="text" placeholder="Public Key" onChange={onPKChange} value={publicKey}></input>
         <br/>
+        <input type="text" placeholder="Secret Key" onChange={onSKChange} value={secretKey}></input>
+        <br/>
         <button onClick={onPGCheckOut}>PG_Checkout</button>
+        <button onClick={onWebhookSetupClick}>Webhook Setup</button>
       </div>
   );
 };
