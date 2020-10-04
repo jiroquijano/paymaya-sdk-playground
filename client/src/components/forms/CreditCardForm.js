@@ -1,20 +1,22 @@
-import React, {useState,useRef} from 'react';
+import React, {useState} from 'react';
 
 const CreditCardForm = ({onCardSubmit}) => {
     const [cardNumber, setCardNumber] = useState('5123456789012346');
     const [expMonth, setExpMonth] = useState('12');
     const [expYear, setExpYear] = useState('2025');
     const [cvc, setCVC] = useState('111');
-    const [clicked, setClicked] = useState(false);
+    const [isSaved, setIsSaved] = useState(false);
 
     const onSubmit = (e) =>{
         e.preventDefault();
-        setClicked(true);
+        setIsSaved(true);
         onCardSubmit(e);
     }
     
     return (
-        <form onSubmit={onSubmit}>
+        <form onSubmit={onSubmit} onChange={(e)=>setIsSaved(false)}>
+            Card information: {isSaved ? '(saved)': '(unsaved)'}
+            <br/>
             <label>
                 Card Number:
                 <input name='cardnumber' onChange={(e)=>setCardNumber(e.target.value)} type='text' placeholder='card number' value={cardNumber}/>
@@ -33,7 +35,7 @@ const CreditCardForm = ({onCardSubmit}) => {
                 <input name='cvc' onChange={(e)=>setCVC(e.target.value)} type='number' value={cvc}/>
             </label>
             <br/>
-            <button>{clicked?'saved':'save'}</button>
+            <button>{isSaved?'saved':'save'}</button>
         </form>
     )
 }

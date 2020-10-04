@@ -9,13 +9,17 @@ import CreditCardForm from './forms/CreditCardForm';
 const PaymentVault = ({publicKey, secretKey}) => {
 
     const [cardDetails, setCardDetails] = useState();
-    const RRN = '12062014';
-
-    const customerDetails = {
+    const [customerId, setCustomerId] = useState('');
+    const [customerPersonalDetails, setCustomerPersonalDetails] = useState({
       firstName: "John",
       middleName: "Paul",
       lastName: "Doe",
       birthday: "1995-10-24",
+    });
+    const RRN = '12062014';
+
+    const customerDetails = {
+      ...customerPersonalDetails,
       customerSince: "1995-10-24",
       sex: "M",
       contact: {
@@ -88,12 +92,28 @@ const PaymentVault = ({publicKey, secretKey}) => {
       });
     }
 
+    const onCustomerFormSubmit = (e) =>{
+      setCustomerPersonalDetails({
+        firstName: e.target['first-name'].value,
+        middleName: e.target['middle-name'].value,
+        lastName: e.target['last-name'].value,
+        birthday: e.target['birthday'].value,
+      })
+    }
+    
+    const onCreateCustomer = async (e) =>{
+      const customerId = await createCustomer(secretKey,customerDetails);
+      if(customerId) setCustomerId(customerId);
+    }
+
     return (
         <>
             <h3>Payment Vault</h3>
-            <CreditCardForm onCardSubmit={onCardSubmit}/>
+            <CreditCardForm onCardSubmit={onCardSubmit} customerId={customerId}/>
             <br/>
-            <CustomerForm/>
+            <CustomerForm onCustomerFormSubmit={onCustomerFormSubmit}/>
+            {customerId}
+            <button onClick={onCreateCustomer}>Create Customer</button>
             <br/>
             <button onClick={onOneTimePayment}>One time payment</button>
         </>
