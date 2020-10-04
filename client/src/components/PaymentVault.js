@@ -1,7 +1,8 @@
 import React, {useState} from 'react';
 import {
   createOneTimePayment,
-  createCustomer
+  createCustomer,
+  createPaymentToken
 } from '../paymaya_sdk/payment-vault';
 import CustomerForm from './forms/CustomerForm';
 import CreditCardForm from './forms/CreditCardForm';
@@ -10,6 +11,7 @@ const PaymentVault = ({publicKey, secretKey}) => {
 
     const [cardDetails, setCardDetails] = useState();
     const [customerId, setCustomerId] = useState('');
+    const [token, setToken] = useState('');
     const [customerPersonalDetails, setCustomerPersonalDetails] = useState({
       firstName: "John",
       middleName: "Paul",
@@ -106,13 +108,39 @@ const PaymentVault = ({publicKey, secretKey}) => {
       if(customerId) setCustomerId(customerId);
     }
 
+    const onCardTokenization = async (e) =>{
+      const tokenizedCard = await createPaymentToken(publicKey, cardDetails);
+      setToken(tokenizedCard.paymentTokenId);
+    }
+
     return (
         <>
             <h3>Payment Vault</h3>
             <CreditCardForm onCardSubmit={onCardSubmit} customerId={customerId}/>
+            <button onClick={onCardTokenization}>tokenize</button>
+            <br/>
+            {
+              token ? 
+              <label>
+                Payment token:
+                <br/>
+                <textarea readOnly value={`${token}`}/> 
+              </label>
+              : undefined 
+            }
+            <br/>
             <br/>
             <CustomerForm onCustomerFormSubmit={onCustomerFormSubmit}/>
-            {customerId}
+            {
+              customerId ? 
+              <label>
+                CustomerId:
+                <br/>
+                <textarea readOnly value={`${customerId}`}/> 
+                <br/>
+              </label>
+              : undefined 
+            }
             <button onClick={onCreateCustomer}>Create Customer</button>
             <br/>
             <button onClick={onOneTimePayment}>One time payment</button>

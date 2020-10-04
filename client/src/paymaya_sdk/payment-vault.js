@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const createPaymentToken = async (publicKey, cardDetails) =>{
+export const createPaymentToken = async (publicKey, cardDetails) =>{
     const options = {
         method: 'post',
         url: 'https://pg-sandbox.paymaya.com/payments/v1/payment-tokens',
