@@ -19,6 +19,25 @@ const createPaymentToken = async (publicKey, cardDetails) =>{
     }
 };
 
+export const createCustomer = async (secretKey, customerDetails) => {
+    const options = {
+        method: 'post',
+        url: 'https://pg-sandbox.paymaya.com/payments/v1/customers',
+        headers:{
+            'Content-Type': 'application/json',
+            'Authorization': `Basic ${btoa(`${secretKey}:`)}`
+        },
+        data: JSON.stringify(customerDetails)
+    }
+    try {
+        const result = await axios(options);
+        console.log(result.data)
+        return result.data.id;
+    } catch (error) {
+        console.log(error.response.data);
+    }
+}
+
 export const createOneTimePayment = async (publicKey, secretKey, transactionDetails, cardDetails) => {
     const cardToken = await createPaymentToken(publicKey, cardDetails);
     if(cardToken.error) return;
