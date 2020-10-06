@@ -58,3 +58,31 @@ export const createOneTimePayment = async (publicKey, secretKey, transactionDeta
         return error;
     }
 }
+
+export const linkCustomerCard = async (secretkey, customerId, cardToken, RRN) => {
+    const options = {
+        method:'post',
+        url:`https://pg-sandbox.paymaya.com/payments/v1/customers/${customerId}/cards`,
+        headers:{
+            'Content-Type' : 'application/json',
+            'Authorization' :  `Basic ${btoa(`${secretkey}:`)}`
+        },
+        data: JSON.stringify({
+            paymentTokenId: `${cardToken}`,
+            isDefault: true,
+            redirectUrl: {
+            success: `https://www.merchantsite.com/success_onetimepay`,
+            failure: `https://www.merchantsite.com/failure`,
+            cancel: `https://www.merchantsite.com/cancel`
+            },
+            requestReferenceNumber: RRN
+        })
+    };
+    try {
+        const result = await axios(options);
+        console.log(result.data);
+        return result.data;
+    } catch (error) {
+        console.log(error.response.data);
+    }
+}
