@@ -2,9 +2,10 @@ import React, {useState} from 'react';
 import {paymentGatewayCheckOut} from '../paymaya_sdk/payment-gateway-checkout';
 
 const SuccessPage_PGCheckout = () => {
-    const [SK, setSK] = useState('');
+    const [SK, setSK] = useState(localStorage.getItem('secretkey'));
     const onSKChange = (e)=> setSK(e.target.value);
-    const [refund, setRefundID] = useState('');
+    const [refundId, setRefundID] = useState('');
+    const [refundAmt, setRefundAmt] = useState('');
     const rrnIndex = window.location.pathname.lastIndexOf('/');
     const RRN = window.location.pathname.slice(rrnIndex+1);
 
@@ -16,17 +17,17 @@ const SuccessPage_PGCheckout = () => {
     const onRefund = async() => {
         const body = {
             totalAmount: {
-                amount: 100,
+                amount: refundAmt,
                 currency: "PHP"
             },
             reason:"wrong color"
         };
-        const {response} = paymentGatewayCheckOut('REFUND_PAYMENT', {secret:SK},{paymentId:refund,body});
+        const {response} = await paymentGatewayCheckOut('REFUND_PAYMENT', {secret:SK},{paymentId:refundId,body});
         console.log(response);
     }
 
     const onGetRefundList = async() => {
-        const {response} = paymentGatewayCheckOut('GET_REFUNDS_LIST',{secret:SK},{paymentId:refund})
+        const {response} = await paymentGatewayCheckOut('GET_REFUNDS_LIST',{secret:SK},{paymentId:refundId})
         console.log("==refunds list==");
         console.log(response);
     }
@@ -35,6 +36,8 @@ const SuccessPage_PGCheckout = () => {
         setRefundID(e.target.value);
     };
 
+    const onRefundAmtChange = (e) => setRefundAmt(e.target.value);
+
     return (
         <div>
             <h1>success</h1>
@@ -42,7 +45,8 @@ const SuccessPage_PGCheckout = () => {
             <br/>
             <button onClick={onCheckViaRRN}>{`check transactions for RRN: ${RRN}`}</button>
             <br/>
-            <input type='text' placeholder='payment to refund' value={refund} onChange={onPaymentIDChange}/>
+            <input type='text' placeholder='refund amount' value={refundAmt} onChange={onRefundAmtChange}/>
+            <input type='text' placeholder='payment to refund' value={refundId} onChange={onPaymentIDChange}/>
             <button onClick={onRefund}>refund</button>
             <button onClick={onGetRefundList}>get refunded list</button>
         </div>

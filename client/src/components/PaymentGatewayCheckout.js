@@ -1,9 +1,9 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {paymentGatewayCheckOut} from '../paymaya_sdk/payment-gateway-checkout';
 import {setupWebhook} from '../paymaya_sdk/paymaya-webhook';
 
-const PaymentGatewayCheckout = ({publicKey, secretKey}) => {
-    const [RRN, setRRN] = useState('12062014');
+const PaymentGatewayCheckout = ({publicKey, secretKey, RRN}) => {
+
     const transactionDetails = {
       totalAmount: {
         value: 100,
@@ -100,14 +100,12 @@ const PaymentGatewayCheckout = ({publicKey, secretKey}) => {
         const {response,error} = await paymentGatewayCheckOut(API_code, {public:publicKey}, reqBody);
         if(!error) window.location = response.redirectUrl;
       };
-
-    const onCheckViaRRN = async()=>{
+      
+      const onCheckViaRRN = async()=>{
         const {response, error} = await paymentGatewayCheckOut('GET_VIA_RRN',{secret:secretKey},{RRN});
         if (!error) console.log(response);
-    };
-
-    const onRRNChange = (e) => setRRN(e.target.value);
-    
+      };
+      
     const onWebhookSetupClick = async(e) => {
       await setupWebhook(secretKey, 'CHECKOUT_SUCCESS', 'http://localhost:80/api/success');
     }
@@ -115,9 +113,6 @@ const PaymentGatewayCheckout = ({publicKey, secretKey}) => {
     return (
         <>
             <h3>Payment Gateway Checkout</h3>
-            <label>RRN:</label>
-            <input type='text' onChange={onRRNChange} placeholder='RRN' value={RRN}/>
-            <br/>
             <button onClick={onPGCheckOut}>PG_Checkout</button>
             <button onClick={onCheckViaRRN}>RRN Check</button>
             <br/>
